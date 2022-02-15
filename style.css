@@ -1,8 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+* {
+  font-family: "Roboto", sans-serif;
+}
+
+:root {
+  --grey: #78767e;
+  --green: #388e3c;
+  --yellow: #c9b458;
+  --tile-size: 3.5rem;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+}
+
+.top-nav {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+.title {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%);
+  margin: 0;
+}
+
+.icon-button {
+  border: none;
+  background: none;
+}
+
+.icon {
+  height: 25px;
+  width: 25px;
+}
+
+.keyboard-icon {
+  height: 25px;
+  width: 25px;
+}
+
 #game-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin: 1.5rem;
 }
 
 .game-row {
@@ -13,12 +64,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 3.5rem;
-  height: 4rem;
-  margin: 0.25rem;
-  border: 1px solid gray;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  margin: 0.15rem;
+  border: 2px solid lightgray;
   border-radius: 2px;
   font-size: 2rem;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 #keyboard-container {
@@ -29,25 +82,84 @@
 }
 
 .keyboard-row {
+  position: relative;
   display: flex;
 }
 
 .keyboard-button {
-  padding: 1rem;
-  margin: 0.25rem;
-  border: 1px solid gray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 3rem;
+  min-height: 3.5rem;
+  padding: 0.5rem 1rem;
+  margin: 0.15rem;
+  border: none;
   border-radius: 8px;
-  background: none;
+  background: lightgray;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.message {
+  position: absolute;
+  top: 1.25rem;
+  left: 50%;
+  transform: translate(-50%);
+  padding: 1rem;
+  color: #fff;
+  background-color: #282828;
+  border-radius: 8px;
+}
+
+.active {
+  border: 2px solid #060606;
+  border-radius: 2px;
+}
+
+.match,
+.partial,
+.no-match {
+  color: #fff;
 }
 
 .match {
-  background-color: lightgreen !important;
+  background-color: var(--green) !important;
 }
 
 .partial {
-  background-color: lightyellow;
+  background-color: var(--yellow);
 }
 
 .no-match {
-  background-color: lightgrey;
+  background-color: var(--grey);
+}
+
+.shake {
+  animation: shake 0.62s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  transform: translate3d(0, 0, 0);
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
 }

@@ -1,4 +1,4 @@
-export const allowedGuesses = [
+export default [
   "aahed",
   "aalii",
   "aargh",

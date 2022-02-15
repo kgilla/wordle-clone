@@ -1,4 +1,5 @@
 import words from "./data/words.js";
+import allowedGuesses from "./data/allowedGuesses.js";
 
 const keyboardButtons = [
   ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
@@ -8,50 +9,90 @@ const keyboardButtons = [
 
 const gameContainer = document.querySelector("#game-container");
 const keyboardContainer = document.querySelector("#keyboard-container");
+const deleteIcon = document.querySelector("#delete-icon");
 
 const wordCount = words.length;
+
+/* TO DO
+add win/loss conditions
+add modal popup for help and win/loss conditions
+fix style
+make responsive / mobile friendly
+*/
 
 // Game state
 let answer = "";
 let guess = "";
 let guessCount = 1;
-let guessHistory = [];
+
+const warnings = {
+  tooShort: "Not enough letters",
+  notWord: "Not in word list",
+};
+
+const createMessage = (message) => {
+  const row = document.querySelector(`#guess-${guessCount}`);
+  console.log(row);
+  const messageEl = document.createElement("div");
+  messageEl.classList.add("message");
+  messageEl.innerText = message;
+  row.appendChild(messageEl);
+  row.classList.add("shake");
+  setTimeout(() => {
+    messageEl.remove();
+    row.classList.remove("shake");
+  }, 2000);
+};
+
+const verifyGuess = () => {
+  if (guess.length < 5) {
+    createMessage(warnings.tooShort);
+    return false;
+  } else if (![...allowedGuesses, ...words].some((word) => word === guess)) {
+    createMessage(warnings.notWord);
+    return false;
+  } else {
+    return true;
+  }
+};
 
 // Cycles through guess to reveal hints on gameboard and keyboard
 const revealHints = (currentGuess) => {
   // Remove me
   console.log(answer.join());
 
-  let guessArray = currentGuess.split("");
+  let guessCopy = currentGuess.split("");
   let answerCopy = [...answer];
 
   // Cycles through to find exact matches
-  guessArray.forEach((letter, i) => {
+  guessCopy.forEach((letter, i) => {
     const tile = document.querySelector(`#guess-${guessCount}-tile-${i + 1}`);
     const keyboardKey = document.querySelector(`#${letter}`);
     if (letter === answer[i]) {
-      answerCopy.splice(i, 1);
+      answerCopy[i] = "";
+      guessCopy[i] = "";
       tile.classList.add("match");
       keyboardKey.classList.add("match");
+      tile.classList.remove("active");
     }
   });
 
   // Cycles through the rest to find partials and show wrong guesses
-  guessArray.forEach((letter, i) => {
+  guessCopy.forEach((letter, i) => {
+    if (letter === "") return;
     const tile = document.querySelector(`#guess-${guessCount}-tile-${i + 1}`);
     const keyboardKey = document.querySelector(`#${letter}`);
-    if (tile.classList.contains("match")) return;
-    if (answerCopy.some((l) => l === letter)) {
-      const index = answerCopy.findIndex((l) => l === letter);
-      answerCopy.splice(index, 1);
+    const index = answerCopy.findIndex((l) => l === letter);
+    if (index !== -1) {
+      answerCopy[index] = "";
+      guessCopy[i] = "";
       tile.classList.add("partial");
-      if (!keyboardKey.classList.contains("match")) {
-        keyboardKey.classList.add("partial");
-      }
+      tile.classList.remove("active");
+      keyboardKey.classList.add("partial");
     } else {
-      if (!keyboardKey.classList.contains("match")) {
-        keyboardKey.classList.add("no-match");
-      }
+      keyboardKey.classList.add("no-match");
+      tile.classList.add("no-match");
+      tile.classList.remove("active");
     }
   });
 };
@@ -63,17 +104,20 @@ const handleButtonClick = (e) => {
     const tile = document.querySelector(
       `#guess-${guessCount}-tile-${guess.length + 1}`
     );
-    tile.innerText = letter.toUpperCase();
+    tile.innerText = letter;
+    tile.classList.add("active");
     guess += letter;
   }
 };
 
 // Handles click of enter key
 const handleEnterClick = () => {
-  revealHints(guess);
-  guessHistory.push(guess);
-  guess = "";
-  guessCount++;
+  const valid = verifyGuess();
+  if (valid) {
+    revealHints(guess);
+    guess = "";
+    guessCount++;
+  }
 };
 
 // Handles click of delete
@@ -83,6 +127,7 @@ const handleDeleteClick = () => {
       `#guess-${guessCount}-tile-${guess.length}`
     );
     tile.innerText = "";
+    tile.classList.remove("active");
     guess = guess.slice(0, -1);
   }
 };
@@ -112,7 +157,11 @@ const keyboardInit = () => {
       const button = document.createElement("button");
       button.classList.add("keyboard-button");
       button.id = key;
-      button.innerText = key.toUpperCase();
+      if (key === "delete") {
+        button.appendChild(deleteIcon);
+      } else {
+        button.innerText = key;
+      }
       button.setAttribute("key", key);
       if (key === "enter") {
         button.addEventListener("click", handleEnterClick);
