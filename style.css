@@ -39,3 +39,15 @@
   border-radius: 8px;
   background: none;
 }
+
+.match {
+  background-color: lightgreen !important;
+}
+
+.partial {
+  background-color: lightyellow;
+}
+
+.no-match {
+  background-color: lightgrey;
+}
