@@ -1,0 +1,37 @@
+#game-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-row {
+  display: flex;
+}
+
+.game-tile {
+  width: 3.5rem;
+  height: 4rem;
+  margin: 0.25rem;
+  border: 1px solid gray;
+  border-radius: 2px;
+}
+
+#keyboard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.keyboard-row {
+  display: flex;
+}
+
+.keyboard-button {
+  padding: 1rem;
+  margin: 0.25rem;
+  border: 1px solid gray;
+  border-radius: 8px;
+  background: none;
+}
