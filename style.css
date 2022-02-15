@@ -10,14 +10,18 @@
 }
 
 .game-tile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 3.5rem;
   height: 4rem;
   margin: 0.25rem;
   border: 1px solid gray;
   border-radius: 2px;
+  font-size: 2rem;
 }
 
-#keyboard {
+#keyboard-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
