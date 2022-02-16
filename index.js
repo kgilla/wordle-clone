@@ -10,6 +10,17 @@ const keyboardButtons = [
 const gameContainer = document.querySelector("#game-container");
 const keyboardContainer = document.querySelector("#keyboard-container");
 const deleteIcon = document.querySelector("#delete-icon");
+const overlay = document.querySelector("#overlay");
+const closeSettings = document.querySelector("#close-settings");
+const settingsToggle = document.querySelector("#settings-toggle");
+
+settingsToggle.addEventListener("click", () => {
+  overlay.classList.toggle("show-settings");
+});
+
+closeSettings.addEventListener("click", () => {
+  overlay.classList.toggle("show-settings");
+});
 
 const wordCount = words.length;
 
@@ -36,12 +47,12 @@ const createMessage = (message) => {
   const messageEl = document.createElement("div");
   messageEl.classList.add("message");
   messageEl.innerText = message;
-  row.appendChild(messageEl);
+  gameContainer.appendChild(messageEl);
   row.classList.add("shake");
   setTimeout(() => {
     messageEl.remove();
     row.classList.remove("shake");
-  }, 2000);
+  }, 1500);
 };
 
 const verifyGuess = () => {
