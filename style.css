@@ -1,5 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 
+/* @media screen and (max-width: 992px) {
+  * {
+    font-size: 12px;
+  }
+} */
+
 * {
   font-family: "Roboto", sans-serif;
 }
@@ -9,6 +15,7 @@
   --green: #388e3c;
   --yellow: #c9b458;
   --tile-size: 3.5rem;
+  --keyboard-height: calc(100vh * 0.25);
 }
 
 body {
@@ -44,8 +51,8 @@ body {
 }
 
 .keyboard-icon {
-  height: 25px;
-  width: 25px;
+  height: 20px;
+  width: 20px;
 }
 
 #game-container {
@@ -53,7 +60,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 1.5rem;
+  margin: 1rem;
 }
 
 .game-row {
@@ -75,31 +82,38 @@ body {
 }
 
 #keyboard-container {
+  height: var(--keyboard-height);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .keyboard-row {
-  position: relative;
+  width: 100%;
+  max-width: 600px;
   display: flex;
+  justify-content: center;
+  flex-grow: 1;
+  margin: 0 auto 8px;
 }
 
 .keyboard-button {
+  height: 58px;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-width: 3rem;
-  min-height: 3.5rem;
-  padding: 0.5rem 1rem;
-  margin: 0.15rem;
+  flex-grow: 1;
+  margin: 0 0.2rem;
   border: none;
   border-radius: 8px;
   background: lightgray;
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+.keyboard-button:hover {
+  cursor: pointer;
+  filter: brightness(95%);
 }
 
 .message {
