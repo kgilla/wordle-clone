@@ -7,20 +7,25 @@ const keyboardButtons = [
   ["enter", "z", "x", "c", "v", "b", "n", "m", "delete"],
 ];
 
+const settingsItems = [
+  {
+    state: "hardmode",
+    header: "Hard Mode",
+    subtext: "Any revealed hints must be used in subsequent guesses",
+  },
+];
+
+const documentBody = document.querySelector("body");
 const gameContainer = document.querySelector("#game-container");
 const keyboardContainer = document.querySelector("#keyboard-container");
 const deleteIcon = document.querySelector("#delete-icon");
 const overlay = document.querySelector("#overlay");
 const closeSettings = document.querySelector("#close-settings");
 const settingsToggle = document.querySelector("#settings-toggle");
-
-settingsToggle.addEventListener("click", () => {
-  overlay.classList.toggle("show-settings");
-});
-
-closeSettings.addEventListener("click", () => {
-  overlay.classList.toggle("show-settings");
-});
+const helpButton = document.querySelector("#help-button");
+const scoreButton = document.querySelector("#score-button");
+const menuHeading = document.querySelector("#menu-heading");
+const menuContent = document.querySelector("#menu-content");
 
 const wordCount = words.length;
 
@@ -36,31 +41,45 @@ let answer = "";
 let guess = "";
 let guessCount = 1;
 
+const settingsState = {
+  hardmode: false,
+};
+
 const warnings = {
   tooShort: "Not enough letters",
   notWord: "Not in word list",
 };
 
-const createMessage = (message) => {
+const winMessages = {
+  1: "Genius!",
+  2: "Amazing",
+  3: "Great Work",
+  4: "Pretty Good",
+  5: "Close One",
+  6: "Phew.",
+};
+
+const createMessage = (message, isWarning) => {
   const row = document.querySelector(`#guess-${guessCount}`);
-  console.log(row);
   const messageEl = document.createElement("div");
   messageEl.classList.add("message");
   messageEl.innerText = message;
   gameContainer.appendChild(messageEl);
-  row.classList.add("shake");
+  if (isWarning) row.classList.add("shake");
   setTimeout(() => {
     messageEl.remove();
-    row.classList.remove("shake");
+    if (isWarning) row.classList.remove("shake");
   }, 1500);
 };
 
+const handleGameOver = () => {};
+
 const verifyGuess = () => {
   if (guess.length < 5) {
-    createMessage(warnings.tooShort);
+    createMessage(warnings.tooShort, true);
     return false;
   } else if (![...allowedGuesses, ...words].some((word) => word === guess)) {
-    createMessage(warnings.notWord);
+    createMessage(warnings.notWord, true);
     return false;
   } else {
     return true;
@@ -69,9 +88,6 @@ const verifyGuess = () => {
 
 // Cycles through guess to reveal hints on gameboard and keyboard
 const revealHints = (currentGuess) => {
-  // Remove me
-  console.log(answer.join());
-
   let guessCopy = currentGuess.split("");
   let answerCopy = [...answer];
 
@@ -84,6 +100,7 @@ const revealHints = (currentGuess) => {
       guessCopy[i] = "";
       tile.classList.add("match");
       keyboardKey.classList.add("match");
+      keyboardKey.classList.remove("partial");
       tile.classList.remove("active");
     }
   });
@@ -175,8 +192,10 @@ const keyboardInit = () => {
       }
       button.setAttribute("key", key);
       if (key === "enter") {
+        button.classList.add("larger-button");
         button.addEventListener("click", handleEnterClick);
       } else if (key === "delete") {
+        button.classList.add("larger-button");
         button.addEventListener("click", handleDeleteClick);
       } else {
         button.addEventListener("click", handleButtonClick);
@@ -187,10 +206,106 @@ const keyboardInit = () => {
   });
 };
 
+// Creates modal for win/loss info
+const createModal = () => {
+  const modalOverlay = document.createElement("div");
+  modalOverlay.classList.add("modal-overlay");
+  documentBody.appendChild(modalOverlay);
+
+  const modal = document.createElement("div");
+  modal.classList.add("main-modal");
+  modalOverlay.appendChild(modal);
+
+  const modalClose = document.createElement("button");
+  modalClose.classList.add("modal-close-button");
+  modalClose.innerText = "X";
+  modal.appendChild(modalClose);
+
+  modalClose.addEventListener("click", () => {
+    modalOverlay.remove();
+  });
+};
+
 // Picks answer from pool
 const generateAnswer = () => {
   answer = words[Math.floor(Math.random() * wordCount)].split("");
 };
+
+// Resets game state and chooses new word
+const resetGame = () => {
+  gameContainer.innerHTML = "";
+  keyboardContainer.innerHTML = "";
+  answer = "";
+  guess = "";
+  guessCount = 1;
+  gameboardInit();
+  keyboardInit();
+  generateAnswer();
+};
+
+// Creates settings menu
+const renderSettings = () => {
+  const settingsList = document.createElement("ul");
+  settingsList.classList.add("settings-menu");
+
+  settingsItems.forEach((item) => {
+    const settingsItem = document.createElement("li");
+    settingsItem.classList.add("menu-item");
+
+    const textContainer = document.createElement("div");
+    textContainer.classList.add("menu-item-text-container");
+
+    const textHeader = document.createElement("div");
+    textHeader.classList.add("menu-item-header");
+    textHeader.textContent = item.header;
+
+    const textSubtext = document.createElement("div");
+    textSubtext.classList.add("menu-item-subtext");
+    textSubtext.textContent = item.subtext;
+
+    const menuButton = document.createElement("button");
+    menuButton.classList.add("menu-item-button");
+    menuButton.classList.add(
+      settingsState[item.state] ? "toggle-active" : "toggle-inactive"
+    );
+    menuButton.addEventListener("click", () => {
+      menuButton.classList.toggle("toggle-inactive");
+      menuButton.classList.toggle("toggle-active");
+      settingsState[item.state] = !settingsState[item.state];
+    });
+
+    const menuSwitch = document.createElement("span");
+    menuSwitch.classList.add("menu-switch");
+    menuButton.appendChild(menuSwitch);
+
+    textContainer.appendChild(textHeader);
+    textContainer.appendChild(textSubtext);
+    settingsItem.appendChild(textContainer);
+    settingsItem.appendChild(menuButton);
+    settingsList.appendChild(settingsItem);
+  });
+
+  menuContent.appendChild(settingsList);
+};
+
+// Event listeners
+settingsToggle.addEventListener("click", () => {
+  overlay.classList.remove("hide-settings");
+  menuHeading.textContent = "Settings";
+  renderSettings();
+  overlay.classList.add("show-settings");
+});
+
+closeSettings.addEventListener("click", () => {
+  overlay.classList.remove("show-settings");
+  overlay.classList.add("hide-settings");
+  setTimeout(() => {
+    menuContent.innerHTML = "";
+  }, 300);
+});
+
+helpButton.addEventListener("click", createModal);
+scoreButton.addEventListener("click", resetGame);
 
 gameboardInit();
 keyboardInit();
