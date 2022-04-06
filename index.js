@@ -7,6 +7,7 @@ import {
   hintKey,
   warnings,
   winMessages,
+  freshGameState,
 } from "./modules/const.js";
 
 const documentBody = document.querySelector("body");
@@ -23,17 +24,7 @@ const menuContent = document.querySelector("#menu-content");
 
 const wordCount = words.length;
 
-// Game Functions
-
-// Game state
-const freshGameState = {
-  answer: "",
-  guess: "",
-  guessCount: 1,
-  gameover: false,
-};
-
-// Game state
+// Game State
 let gameState = {
   answer: "",
   guess: "",
@@ -41,13 +32,41 @@ let gameState = {
   gameover: false,
 };
 
+const statistics = {
+  winCount: 0,
+  gameCount: 0,
+  streak: 0,
+  guessBreakdown: {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+    6: 0,
+  },
+};
+
 const settingsState = {
   hardmode: false,
+};
+
+// Game Functions
+
+const updateStats = (win) => {
+  if (win) {
+    statistics.winCount += 1;
+    statistics.streak += 1;
+    statistics.guessBreakdown[gameState.guessCount] += 1;
+  } else {
+    statistics.streak = 0;
+  }
+  statistics.gameCount += 1;
 };
 
 // Displays final message and pops up modal
 const handleGameOver = (win) => {
   gameState.gameover = true;
+  updateStats(win);
   createMessage(
     win ? winMessages[gameState.guessCount] : "Better Luck Next Time"
   );
@@ -76,13 +95,7 @@ const checkWin = (guess) => {
   if (isWin) handleGameOver(true);
 };
 
-// Cycles through guess to reveal hints on gameboard and keyboard
-const generateHints = (currentGuess) => {
-  let guessCopy = currentGuess.split("");
-  let answerCopy = [...gameState.answer];
-  let hints = [];
-
-  // Cycles through to find exact matches
+const findExactMatches = (guessCopy, answerCopy, hints) => {
   guessCopy.forEach((letter, i) => {
     const tile = document.querySelector(
       `#guess-${gameState.guessCount}-tile-${i + 1}`
@@ -91,13 +104,13 @@ const generateHints = (currentGuess) => {
     if (letter === gameState.answer[i]) {
       answerCopy[i] = "";
       guessCopy[i] = "";
-      hints.push({ tile, keyboardKey, class: hintKey.match });
+      hints.push({ index: i, tile, keyboardKey, class: hintKey.match });
     }
   });
+  return [guessCopy, answerCopy, hints];
+};
 
-  checkWin(guessCopy);
-
-  // Cycles through the rest to find partials and show wrong guesses
+const findPartialMatches = (guessCopy, answerCopy, hints) => {
   guessCopy.forEach((letter, i) => {
     if (letter === "") return;
     const tile = document.querySelector(
@@ -108,18 +121,52 @@ const generateHints = (currentGuess) => {
     if (index !== -1) {
       answerCopy[index] = "";
       guessCopy[i] = "";
-      hints.push({ tile, keyboardKey, class: hintKey.partial });
+      hints.push({ index: i, tile, keyboardKey, class: hintKey.partial });
     } else {
-      hints.push({ tile, keyboardKey, class: hintKey.noMatch });
+      hints.push({ index: i, tile, keyboardKey, class: hintKey.noMatch });
     }
   });
+  return [guessCopy, answerCopy, hints];
+};
 
-  return hints;
+// Cycles through guess to reveal hints on gameboard and keyboard
+const generateHints = (currentGuess) => {
+  let guessCopy = currentGuess.split("");
+  let answerCopy = [...gameState.answer];
+  let hints = [];
+
+  [guessCopy, answerCopy, hints] = findExactMatches(
+    guessCopy,
+    answerCopy,
+    hints
+  );
+
+  checkWin(guessCopy);
+
+  [guessCopy, answerCopy, hints] = findPartialMatches(
+    guessCopy,
+    answerCopy,
+    hints
+  );
+
+  return hints.sort((hintA, hintB) => (hintA.index > hintB.index ? 1 : -1));
 };
 
 // Picks answer from pool
 const generateAnswer = () => {
   gameState.answer = words[Math.floor(Math.random() * wordCount)].split("");
+};
+
+const flipTiles = (hints) => {
+  hints.forEach((hint, i) => {
+    setTimeout(() => {
+      hint.tile.classList.add("flip-in");
+    }, 250 * i);
+    setTimeout(() => {
+      hint.tile.classList.add("flip-out");
+      renderHint(hint);
+    }, 250 * (i + 1));
+  });
 };
 
 // Resets game state and chooses new word
@@ -183,17 +230,23 @@ const keyboardInit = () => {
 };
 
 //Renders hints on both keyboard and game tiles
-const renderHints = (hints) => {
-  hints.forEach((hint) => {
-    hint.tile.classList.add(hint.class);
-    hint.tile.classList.remove(hintKey.active);
-    hint.keyboardKey.classList.add(hint.class);
-    if (
-      hint.keyboardKey.classList.contains(hintKey.partial) &&
-      hint.class === hintKey.match
-    )
-      hint.keyboardKey.classList.remove(hintKey.partial);
-  });
+const renderHint = (hint) => {
+  hint.tile.classList.add(hint.class);
+  hint.tile.classList.remove(hintKey.active);
+};
+
+const updateKeyboard = (hints) => {
+  setTimeout(() => {
+    hints.forEach((hint) => {
+      hint.keyboardKey.classList.add(hint.class);
+      if (
+        hint.keyboardKey.classList.contains(hintKey.partial) &&
+        hint.class === hintKey.match
+      ) {
+        hint.keyboardKey.classList.remove(hintKey.partial);
+      }
+    });
+  }, 1500);
 };
 
 // Creates messages for improper input and end of game
@@ -209,6 +262,41 @@ const createMessage = (message, isWarning = false) => {
     messageEl.remove();
     if (isWarning) row.classList.remove("shake");
   }, 1500);
+};
+
+const createStatsElements = () => {
+  const { winCount, gameCount, streak, guessBreakdown } = statistics;
+  const statsData = [
+    { label: "Played", data: gameCount },
+    { label: "Win%", data: Math.round((winCount / gameCount) * 100) },
+    { label: "Streak", data: streak },
+  ];
+
+  const statsContainer = createElement("div", {
+    class: "stats-container",
+  });
+
+  statsData.forEach((stat) => {
+    const statContainer = createElement("div", {
+      class: "stat-container",
+    });
+
+    const statValue = createElement("p", {
+      class: "stat-value",
+      innerText: stat.data,
+    });
+
+    const statLabel = createElement("p", {
+      class: "stat-label",
+      innerText: stat.label,
+    });
+
+    statContainer.appendChild(statValue);
+    statContainer.appendChild(statLabel);
+    statsContainer.appendChild(statContainer);
+  });
+
+  return statsContainer;
 };
 
 // Creates modal for win/loss info
@@ -229,6 +317,8 @@ const createModal = (isWin) => {
     class: "modal-text",
     innerText: `The word was ${gameState.answer.join("")}`,
   });
+
+  const modalStats = createStatsElements();
 
   const buttonContainer = createElement("div", {
     class: "modal-button-container",
@@ -264,6 +354,7 @@ const createModal = (isWin) => {
   buttonContainer.appendChild(githubButton);
   modal.appendChild(heading);
   modal.appendChild(modalBody);
+  modal.appendChild(modalStats);
   modal.appendChild(buttonContainer);
 };
 
@@ -341,10 +432,15 @@ const handleEnterClick = () => {
   const valid = verifyGuess();
   if (valid) {
     const hints = generateHints(gameState.guess);
-    renderHints(hints);
+    flipTiles(hints);
+    updateKeyboard(hints);
     gameState.guess = "";
     gameState.guessCount++;
-    if (gameState.guessCount > 6 && !gameState.gameover) handleGameOver();
+    if (gameState.guessCount > 6 && !gameState.gameover) {
+      setTimeout(() => {
+        handleGameOver();
+      }, 500);
+    }
   }
 };
 

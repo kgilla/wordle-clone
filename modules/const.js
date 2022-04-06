@@ -38,3 +38,10 @@ export const winMessages = {
   5: "Close One",
   6: "Phew.",
 };
+
+export const freshGameState = {
+  answer: "",
+  guess: "",
+  guessCount: 1,
+  gameover: false,
+};

@@ -30,6 +30,8 @@ button {
   cursor: pointer;
 }
 
+/* Nav Bar */
+
 .top-nav {
   position: relative;
   display: flex;
@@ -60,10 +62,7 @@ button {
   width: 25px;
 }
 
-.keyboard-icon {
-  height: 20px;
-  width: 20px;
-}
+/* Main Game */
 
 #game-container {
   position: relative;
@@ -90,7 +89,7 @@ button {
   font-size: 2rem;
   font-weight: 600;
   text-transform: uppercase;
-  transition: all 0.1s;
+  transition: all 0.2s;
 }
 
 #keyboard-container {
@@ -124,6 +123,11 @@ button {
   transition: all 0.1s;
 }
 
+.keyboard-icon {
+  height: 20px;
+  width: 20px;
+}
+
 .larger-button {
   flex-grow: 1;
 }
@@ -143,6 +147,8 @@ button {
   background-color: #282828;
   border-radius: 8px;
 }
+
+/* Settings Menu */
 
 #overlay {
   z-index: -2;
@@ -262,76 +268,7 @@ button {
   border-radius: 100%;
 }
 
-.toggle-active {
-  background-color: var(--green);
-}
-
-.toggle-active > span {
-  right: 1px;
-  transform: translateX(0);
-}
-
-.toggle-inactive {
-  background-color: #a2a2a2;
-}
-
-.toggle-inactive > span {
-  left: 2px;
-  transform: translateX(0);
-}
-
-.active {
-  border: 2px solid #060606;
-  border-radius: 2px;
-}
-
-.match,
-.partial,
-.no-match {
-  color: #fff;
-}
-
-.match {
-  background-color: var(--green) !important;
-  border: 2px solid var(--green) !important;
-}
-
-.partial {
-  background-color: var(--yellow) !important;
-  border: 2px solid var(--yellow) !important;
-}
-
-.no-match {
-  background-color: var(--grey);
-  border: 2px solid var(--grey);
-}
-
-.shake {
-  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
-}
-
-@keyframes shake {
-  10%,
-  90% {
-    transform: translate(-1px, 0);
-  }
-
-  20%,
-  80% {
-    transform: translate(2px, 0);
-  }
-
-  30%,
-  50%,
-  70% {
-    transform: translate(-4px, 0);
-  }
-
-  40%,
-  60% {
-    transform: translate(4px, 0);
-  }
-}
+/* Modal Popup */
 
 .main-modal {
   position: relative;
@@ -391,12 +328,137 @@ button {
   margin: 0 0.5rem;
   font-size: 1.1rem;
   color: #fff;
-  background-color: #78767e;
+  background-color: var(--green);
   border: none;
-  border-radius: 8px;
-  box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+  border-radius: 4px;
 }
 
-.modal-button:nth-child(0) {
-  background-color: green;
+.stats-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 1rem;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.stat-label {
+  margin: 0;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: #78767e;
+}
+
+/* Utility classes and Animations */
+
+.toggle-active {
+  background-color: var(--green);
+}
+
+.toggle-active > span {
+  right: 1px;
+  transform: translateX(0);
+}
+
+.toggle-inactive {
+  background-color: #a2a2a2;
+}
+
+.toggle-inactive > span {
+  left: 2px;
+  transform: translateX(0);
+}
+
+.active {
+  border: 2px solid #060606;
+  border-radius: 2px;
+}
+
+.match,
+.partial,
+.no-match {
+  color: #fff;
+}
+
+.match {
+  background-color: var(--green) !important;
+  border: 2px solid var(--green) !important;
+}
+
+.partial {
+  background-color: var(--yellow) !important;
+  border: 2px solid var(--yellow) !important;
+}
+
+.no-match {
+  background-color: var(--grey);
+  border: 2px solid var(--grey);
+}
+
+.shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.flip-in {
+  animation: flipIn 250ms ease-in;
+}
+
+.flip-out {
+  animation: flipOut 250ms ease-in;
+}
+
+@keyframes flipIn {
+  0% {
+    transform: rotateX(0deg);
+    transform-style: preserve-3d;
+  }
+
+  100% {
+    transform: rotateX(-90deg);
+    transform-style: preserve-3d;
+  }
+}
+
+@keyframes flipOut {
+  0% {
+    transform: rotateX(-90deg);
+    transform-style: preserve-3d;
+  }
+
+  100% {
+    transform: rotateX(0deg);
+    transform-style: preserve-3d;
+  }
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate(-1px, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate(2px, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate(-4px, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate(4px, 0);
+  }
 }
