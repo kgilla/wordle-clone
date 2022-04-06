@@ -160,12 +160,18 @@ const generateAnswer = () => {
 const flipTiles = (hints) => {
   hints.forEach((hint, i) => {
     setTimeout(() => {
-      hint.tile.classList.add("flip-in");
-    }, 250 * i);
-    setTimeout(() => {
-      hint.tile.classList.add("flip-out");
-      renderHint(hint);
-    }, 250 * (i + 1));
+      setTimeout(() => {
+        hint.tile.classList.add("flip-in");
+      }, 250 * i);
+      setTimeout(() => {
+        hint.tile.classList.add("flip-out");
+        renderHint(hint);
+      }, 250 * (i + 1));
+      setTimeout(() => {
+        hint.tile.classList.remove("flip-in");
+        hint.tile.classList.remove("flip-out");
+      }, 600 * (i + 1));
+    }, 20);
   });
 };
 

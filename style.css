@@ -120,7 +120,7 @@ button {
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
-  transition: all 0.1s;
+  transition: all 0.2s;
 }
 
 .keyboard-icon {
