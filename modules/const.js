@@ -50,6 +50,7 @@ export const freshGameState = {
   guess: "",
   guessCount: 1,
   gameover: false,
+  prevGuesses: [],
 };
 
 export const helpParagraph =

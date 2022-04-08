@@ -27,59 +27,80 @@ const scoreButton = document.querySelector("#score-button");
 const wordCount = words.length;
 
 /* Things to do
-  1) Add how to page
   2) Add stats graph
-  3) Save and pull stats in local storage
   4) Add hard mode
 */
 
 // Game State
-let gameState = {
-  answer: "",
-  guess: "",
-  guessCount: 1,
-  gameover: false,
-};
-
-const statistics = {
-  winCount: 0,
-  gameCount: 0,
-  streak: 0,
-  guessBreakdown: {
-    1: 0,
-    2: 0,
-    3: 0,
-    4: 0,
-    5: 0,
-    6: 0,
+let state = {
+  game: {
+    answer: "",
+    guess: "",
+    guessCount: 1,
+    gameover: false,
+    prevGuesses: [],
+  },
+  stats: {
+    winCount: 0,
+    gameCount: 0,
+    streak: 0,
+    guessBreakdown: {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+    },
+  },
+  settings: {
+    hardmode: false,
+    darkmode: false,
   },
 };
 
-const settingsState = {
-  hardmode: false,
-  darkmode: false,
+const saveState = () => {
+  window.localStorage.setItem("state", JSON.stringify(state));
+};
+
+const loadState = () => {
+  const stateSave = JSON.parse(window.localStorage.getItem("state"));
+  if (stateSave) {
+    state = stateSave;
+    const { settings, game } = state;
+    if (settings.darkmode) document.body.classList.toggle("dark-theme");
+    if (game.prevGuesses && !game.gameover) {
+      game.prevGuesses.forEach((guess, i) => {
+        const hints = generateHints(guess, i + 1);
+        hints.forEach((hint) => renderHint(hint));
+        updateKeyboard(hints, false);
+      });
+    }
+  }
 };
 
 // Game Functions
 
 // Updates stats state
 const updateStats = (win) => {
+  const { stats } = state;
   if (win) {
-    statistics.winCount += 1;
-    statistics.streak += 1;
-    statistics.guessBreakdown[gameState.guessCount] += 1;
+    stats.winCount += 1;
+    stats.streak += 1;
+    stats.guessBreakdown[state.game.guessCount] += 1;
   } else {
-    statistics.streak = 0;
+    stats.streak = 0;
   }
-  statistics.gameCount += 1;
+  stats.gameCount += 1;
+  saveState();
 };
 
 // Displays final message and pops up modal
 const handleGameOver = (win) => {
-  gameState.gameover = true;
+  state.game.gameover = true;
   updateStats(win);
   createMessage(
-    win ? winMessages[gameState.guessCount] : "Better Luck Next Time"
+    win ? winMessages[state.game.guessCount] : "Better Luck Next Time"
   );
   setTimeout(() => {
     createModal();
@@ -88,11 +109,11 @@ const handleGameOver = (win) => {
 
 // Validates guess based on current settings
 const verifyGuess = () => {
-  if (gameState.guess.length < 5) {
+  if (state.game.guess.length < 5) {
     createMessage(warnings.tooShort, true);
     return false;
   } else if (
-    ![...allowedGuesses, ...words].some((word) => word === gameState.guess)
+    ![...allowedGuesses, ...words].some((word) => word === state.game.guess)
   ) {
     createMessage(warnings.notWord, true);
     return false;
@@ -108,13 +129,14 @@ const checkWin = (guess) => {
 };
 
 // cycles through current guess and finds all exact matches
-const findExactMatches = (guessCopy, answerCopy, hints) => {
+const findExactMatches = (guessCopy, answerCopy, hints, row) => {
   guessCopy.forEach((letter, i) => {
     const tile = document.querySelector(
-      `#guess-${gameState.guessCount}-tile-${i + 1}`
+      `#guess-${row || state.game.guessCount}-tile-${i + 1}`
     );
+    if (row) tile.innerText = letter;
     const keyboardKey = document.querySelector(`#${letter}`);
-    if (letter === gameState.answer[i]) {
+    if (letter === state.game.answer[i]) {
       answerCopy[i] = "";
       guessCopy[i] = "";
       hints.push({ index: i, tile, keyboardKey, class: hintKey.match });
@@ -124,12 +146,13 @@ const findExactMatches = (guessCopy, answerCopy, hints) => {
 };
 
 // cycles through remaining letters and finds partial matches
-const findPartialMatches = (guessCopy, answerCopy, hints) => {
+const findPartialMatches = (guessCopy, answerCopy, hints, row) => {
   guessCopy.forEach((letter, i) => {
     if (letter === "") return;
     const tile = document.querySelector(
-      `#guess-${gameState.guessCount}-tile-${i + 1}`
+      `#guess-${row || state.game.guessCount}-tile-${i + 1}`
     );
+    if (row) tile.innerText = letter;
     const keyboardKey = document.querySelector(`#${letter}`);
     const index = answerCopy.findIndex((l) => l === letter);
     if (index !== -1) {
@@ -144,15 +167,16 @@ const findPartialMatches = (guessCopy, answerCopy, hints) => {
 };
 
 // Cycles through guess to reveal hints on gameboard and keyboard
-const generateHints = (currentGuess) => {
+const generateHints = (currentGuess, row) => {
   let guessCopy = currentGuess.split("");
-  let answerCopy = [...gameState.answer];
+  let answerCopy = [...state.game.answer];
   let hints = [];
 
   [guessCopy, answerCopy, hints] = findExactMatches(
     guessCopy,
     answerCopy,
-    hints
+    hints,
+    row
   );
 
   checkWin(guessCopy);
@@ -160,7 +184,8 @@ const generateHints = (currentGuess) => {
   [guessCopy, answerCopy, hints] = findPartialMatches(
     guessCopy,
     answerCopy,
-    hints
+    hints,
+    row
   );
 
   return hints.sort((hintA, hintB) => (hintA.index > hintB.index ? 1 : -1));
@@ -168,7 +193,7 @@ const generateHints = (currentGuess) => {
 
 // Picks answer from pool
 const generateAnswer = () => {
-  gameState.answer = words[Math.floor(Math.random() * wordCount)].split("");
+  state.game.answer = words[Math.floor(Math.random() * wordCount)].split("");
 };
 
 // Animates tiles one at a time and adds hint class
@@ -192,7 +217,7 @@ const flipTiles = (hints) => {
 const resetGame = () => {
   gameContainer.innerHTML = "";
   keyboardContainer.innerHTML = "";
-  gameState = { ...freshGameState };
+  state.game = { ...freshGameState };
   gameboardInit();
   keyboardInit();
   generateAnswer();
@@ -255,23 +280,26 @@ const renderHint = (hint) => {
 };
 
 //Renders hints on keyboard after tile animations
-const updateKeyboard = (hints) => {
-  setTimeout(() => {
-    hints.forEach((hint) => {
-      hint.keyboardKey.classList.add(hint.class);
-      if (
-        hint.keyboardKey.classList.contains(hintKey.partial) &&
-        hint.class === hintKey.match
-      ) {
-        hint.keyboardKey.classList.remove(hintKey.partial);
-      }
-    });
-  }, 1500);
+const updateKeyboard = (hints, delay = true) => {
+  setTimeout(
+    () => {
+      hints.forEach((hint) => {
+        hint.keyboardKey.classList.add(hint.class);
+        if (
+          hint.keyboardKey.classList.contains(hintKey.partial) &&
+          hint.class === hintKey.match
+        ) {
+          hint.keyboardKey.classList.remove(hintKey.partial);
+        }
+      });
+    },
+    delay ? 1500 : 0
+  );
 };
 
 // Creates messages for improper input and end of game
 const createMessage = (message, isWarning = false) => {
-  const row = document.querySelector(`#guess-${gameState.guessCount}`);
+  const row = document.querySelector(`#guess-${state.game.guessCount}`);
   const messageEl = createElement("div", {
     class: "message",
     innerText: message,
@@ -286,10 +314,10 @@ const createMessage = (message, isWarning = false) => {
 
 // Creates Statistics elements shown after game
 const createStatsElements = () => {
-  const { winCount, gameCount, streak } = statistics;
+  const { winCount, gameCount, streak } = state.stats;
   const statsData = [
     { label: "Played", data: gameCount },
-    { label: "Win%", data: Math.round((winCount / gameCount) * 100) },
+    { label: "Win%", data: Math.round((winCount / gameCount) * 100 || 0) },
     { label: "Streak", data: streak },
   ];
 
@@ -336,7 +364,7 @@ const createModal = (isWin) => {
 
   const modalBody = createElement("p", {
     class: "modal-text",
-    innerText: `The word was ${gameState.answer.join("")}`,
+    innerText: `The word was ${state.game.answer.join("")}`,
   });
 
   const modalStats = createStatsElements();
@@ -401,7 +429,7 @@ const renderSettings = () => {
     });
 
     const menuButton = createElement("button", {
-      class: settingsState[item.state] ? "toggle-active" : "toggle-inactive",
+      class: state.settings[item.state] ? "toggle-active" : "toggle-inactive",
     });
     menuButton.classList.add("menu-item-button");
 
@@ -410,8 +438,9 @@ const renderSettings = () => {
     menuButton.addEventListener("click", () => {
       menuButton.classList.toggle("toggle-inactive");
       menuButton.classList.toggle("toggle-active");
-      settingsState[item.state] = !settingsState[item.state];
+      state.settings[item.state] = !state.settings[item.state];
       if (item.function) item.function();
+      saveState();
     });
 
     menuButton.appendChild(menuSwitch);
@@ -427,19 +456,30 @@ const renderSettings = () => {
 
 const renderHowTo = () => {
   const container = createElement("div", { class: "help-container" });
+
   const firstParaContainer = createElement("div", {
     class: "help-section",
   });
+
   const firstPara = createElement("p", {
     class: "help-paragraph",
     innerText: helpParagraph,
   });
+
   const secondParaContainer = createElement("div", {
     class: "help-section",
   });
 
+  const helpHeading = createElement("h4", {
+    class: "help-heading",
+    innerText: "Examples",
+  });
+
+  secondParaContainer.appendChild(helpHeading);
+
   helpExamples.forEach(({ word, text }) => {
     const row = createElement("div", { class: "game-row" });
+
     word.forEach((tile) => {
       const helpTile = createElement("div", {
         class: "game-tile",
@@ -449,10 +489,12 @@ const renderHowTo = () => {
       if (tile.class) helpTile.classList.add(tile.class);
       row.appendChild(helpTile);
     });
+
     const para = createElement("p", {
       class: "help-paragraph",
       innerText: text,
     });
+
     secondParaContainer.appendChild(row);
     secondParaContainer.appendChild(para);
   });
@@ -477,13 +519,13 @@ const createElement = (type, attr) => {
 // Handles the click event for all letters
 const handleKeyboardClick = (e) => {
   const letter = e.target.getAttribute("key");
-  if (gameState.guess.length < 5) {
+  if (state.game.guess.length < 5) {
     const tile = document.querySelector(
-      `#guess-${gameState.guessCount}-tile-${gameState.guess.length + 1}`
+      `#guess-${state.game.guessCount}-tile-${state.game.guess.length + 1}`
     );
     tile.innerText = letter;
     tile.classList.add("active");
-    gameState.guess += letter;
+    state.game.guess += letter;
   }
 };
 
@@ -495,13 +537,13 @@ const handleKeyboardPress = (e) => {
     } else if (e.key === "Backspace") {
       handleDeleteClick();
     } else {
-      if (gameState.guess.length < 5) {
+      if (state.game.guess.length < 5) {
         const tile = document.querySelector(
-          `#guess-${gameState.guessCount}-tile-${gameState.guess.length + 1}`
+          `#guess-${state.game.guessCount}-tile-${state.game.guess.length + 1}`
         );
         tile.innerText = e.key;
         tile.classList.add("active");
-        gameState.guess += e.key;
+        state.game.guess += e.key;
       }
     }
   }
@@ -511,12 +553,14 @@ const handleKeyboardPress = (e) => {
 const handleEnterClick = () => {
   const valid = verifyGuess();
   if (valid) {
-    const hints = generateHints(gameState.guess);
+    const hints = generateHints(state.game.guess);
     flipTiles(hints);
     updateKeyboard(hints);
-    gameState.guess = "";
-    gameState.guessCount++;
-    if (gameState.guessCount > 6 && !gameState.gameover) {
+    state.game.prevGuesses.push(state.game.guess);
+    state.game.guess = "";
+    state.game.guessCount++;
+    saveState();
+    if (state.game.guessCount > 6 && !state.game.gameover) {
       setTimeout(() => {
         handleGameOver();
       }, 500);
@@ -526,13 +570,13 @@ const handleEnterClick = () => {
 
 // Removes last letter from current word
 const handleDeleteClick = () => {
-  if (gameState.guess.length > 0) {
+  if (state.game.guess.length > 0) {
     const tile = document.querySelector(
-      `#guess-${gameState.guessCount}-tile-${gameState.guess.length}`
+      `#guess-${state.game.guessCount}-tile-${state.game.guess.length}`
     );
     tile.innerText = "";
     tile.classList.remove("active");
-    gameState.guess = gameState.guess.slice(0, -1);
+    state.game.guess = state.game.guess.slice(0, -1);
   }
 };
 
@@ -554,7 +598,7 @@ const closeOverlay = () => {
 };
 
 closeSettings.addEventListener("click", closeOverlay);
-scoreButton.addEventListener("click", resetGame);
+scoreButton.addEventListener("click", createModal);
 document.addEventListener("keydown", handleKeyboardPress);
 
 helpButton.addEventListener(
@@ -576,3 +620,4 @@ settingsToggle.addEventListener(
 gameboardInit();
 keyboardInit();
 generateAnswer();
+loadState();
