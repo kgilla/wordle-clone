@@ -10,14 +10,6 @@ export const validKeys = [
   ...keyboardButtons[2],
 ];
 
-export const settingsItems = [
-  {
-    state: "hardmode",
-    header: "Hard Mode",
-    subtext: "Any revealed hints must be used in subsequent guesses",
-  },
-];
-
 export const hintKey = {
   active: "active",
   match: "match",

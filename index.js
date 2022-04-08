@@ -3,26 +3,50 @@ import allowedGuesses from "./data/allowedGuesses.js";
 import {
   keyboardButtons,
   validKeys,
-  settingsItems,
   hintKey,
   warnings,
   winMessages,
   freshGameState,
 } from "./modules/const.js";
 
+const closeSettings = document.querySelector("#close-settings");
+const deleteIcon = document.querySelector("#delete-icon");
 const documentBody = document.querySelector("body");
 const gameContainer = document.querySelector("#game-container");
-const keyboardContainer = document.querySelector("#keyboard-container");
-const deleteIcon = document.querySelector("#delete-icon");
-const overlay = document.querySelector("#overlay");
-const closeSettings = document.querySelector("#close-settings");
-const settingsToggle = document.querySelector("#settings-toggle");
 const helpButton = document.querySelector("#help-button");
-const scoreButton = document.querySelector("#score-button");
-const menuHeading = document.querySelector("#menu-heading");
+const keyboardContainer = document.querySelector("#keyboard-container");
 const menuContent = document.querySelector("#menu-content");
+const menuHeading = document.querySelector("#menu-heading");
+const overlay = document.querySelector("#overlay");
+const settingsToggle = document.querySelector("#settings-toggle");
+const scoreButton = document.querySelector("#score-button");
 
 const wordCount = words.length;
+
+const toggleTheme = () => {
+  documentBody.classList.toggle("dark-theme");
+};
+
+export const settingsItems = [
+  {
+    state: "hardmode",
+    header: "Hard Mode",
+    subtext: "Any revealed hints must be used in subsequent guesses",
+  },
+  {
+    state: "darkmode",
+    header: "Dark Theme",
+    subtext: "",
+    function: toggleTheme,
+  },
+];
+
+/* Things to do
+  1) Add how to page
+  2) Add stats graph
+  3) Save and pull stats in local storage
+  4) Add hard mode
+*/
 
 // Game State
 let gameState = {
@@ -48,10 +72,12 @@ const statistics = {
 
 const settingsState = {
   hardmode: false,
+  darkmode: false,
 };
 
 // Game Functions
 
+// Updates stats state
 const updateStats = (win) => {
   if (win) {
     statistics.winCount += 1;
@@ -75,6 +101,7 @@ const handleGameOver = (win) => {
   }, 1500);
 };
 
+// Validates guess based on current settings
 const verifyGuess = () => {
   if (gameState.guess.length < 5) {
     createMessage(warnings.tooShort, true);
@@ -95,6 +122,7 @@ const checkWin = (guess) => {
   if (isWin) handleGameOver(true);
 };
 
+// cycles through current guess and finds all exact matches
 const findExactMatches = (guessCopy, answerCopy, hints) => {
   guessCopy.forEach((letter, i) => {
     const tile = document.querySelector(
@@ -110,6 +138,7 @@ const findExactMatches = (guessCopy, answerCopy, hints) => {
   return [guessCopy, answerCopy, hints];
 };
 
+// cycles through remaining letters and finds partial matches
 const findPartialMatches = (guessCopy, answerCopy, hints) => {
   guessCopy.forEach((letter, i) => {
     if (letter === "") return;
@@ -157,21 +186,20 @@ const generateAnswer = () => {
   gameState.answer = words[Math.floor(Math.random() * wordCount)].split("");
 };
 
+// Animates tiles one at a time and adds hint class
 const flipTiles = (hints) => {
   hints.forEach((hint, i) => {
     setTimeout(() => {
-      setTimeout(() => {
-        hint.tile.classList.add("flip-in");
-      }, 250 * i);
-      setTimeout(() => {
-        hint.tile.classList.add("flip-out");
-        renderHint(hint);
-      }, 250 * (i + 1));
-      setTimeout(() => {
-        hint.tile.classList.remove("flip-in");
-        hint.tile.classList.remove("flip-out");
-      }, 600 * (i + 1));
-    }, 20);
+      hint.tile.classList.add("flip-in");
+    }, i * 250);
+    setTimeout(() => {
+      hint.tile.classList.add("flip-out");
+      renderHint(hint);
+    }, 245 * (i + 1));
+    setTimeout(() => {
+      hint.tile.classList.remove("flip-in");
+      hint.tile.classList.remove("flip-out");
+    }, 510 * (i + 1));
   });
 };
 
@@ -185,7 +213,7 @@ const resetGame = () => {
   generateAnswer();
 };
 
-// Rendering Functions
+// Rendering Functions //
 
 // Creates game board squares
 const gameboardInit = () => {
@@ -227,7 +255,7 @@ const keyboardInit = () => {
         button.classList.add("larger-button");
         button.addEventListener("click", handleDeleteClick);
       } else {
-        button.addEventListener("click", handleButtonClick);
+        button.addEventListener("click", handleKeyboardClick);
       }
       keyboardRow.appendChild(button);
     });
@@ -235,12 +263,13 @@ const keyboardInit = () => {
   });
 };
 
-//Renders hints on both keyboard and game tiles
+//Renders hints on game tiles one at a time
 const renderHint = (hint) => {
   hint.tile.classList.add(hint.class);
   hint.tile.classList.remove(hintKey.active);
 };
 
+//Renders hints on keyboard after tile animations
 const updateKeyboard = (hints) => {
   setTimeout(() => {
     hints.forEach((hint) => {
@@ -270,8 +299,9 @@ const createMessage = (message, isWarning = false) => {
   }, 1500);
 };
 
+// Creates Statistics elements shown after game
 const createStatsElements = () => {
-  const { winCount, gameCount, streak, guessBreakdown } = statistics;
+  const { winCount, gameCount, streak } = statistics;
   const statsData = [
     { label: "Played", data: gameCount },
     { label: "Win%", data: Math.round((winCount / gameCount) * 100) },
@@ -386,7 +416,7 @@ const renderSettings = () => {
     });
 
     const menuButton = createElement("button", {
-      class: settingsState[item.state] ? "toggle-active " : "toggle-inactive",
+      class: settingsState[item.state] ? "toggle-active" : "toggle-inactive",
     });
     menuButton.classList.add("menu-item-button");
 
@@ -396,6 +426,7 @@ const renderSettings = () => {
       menuButton.classList.toggle("toggle-inactive");
       menuButton.classList.toggle("toggle-active");
       settingsState[item.state] = !settingsState[item.state];
+      if (item.function) item.function();
     });
 
     menuButton.appendChild(menuSwitch);
@@ -407,6 +438,10 @@ const renderSettings = () => {
   });
 
   menuContent.appendChild(settingsList);
+};
+
+const renderHowTo = () => {
+  console.log("jajaja");
 };
 
 // Element creation factory
@@ -421,7 +456,7 @@ const createElement = (type, attr) => {
 // Event listeners
 
 // Handles the click event for all letters
-const handleButtonClick = (e) => {
+const handleKeyboardClick = (e) => {
   const letter = e.target.getAttribute("key");
   if (gameState.guess.length < 5) {
     const tile = document.querySelector(
@@ -433,54 +468,8 @@ const handleButtonClick = (e) => {
   }
 };
 
-// Handles click of enter key
-const handleEnterClick = () => {
-  const valid = verifyGuess();
-  if (valid) {
-    const hints = generateHints(gameState.guess);
-    flipTiles(hints);
-    updateKeyboard(hints);
-    gameState.guess = "";
-    gameState.guessCount++;
-    if (gameState.guessCount > 6 && !gameState.gameover) {
-      setTimeout(() => {
-        handleGameOver();
-      }, 500);
-    }
-  }
-};
-
-// Handles click of delete
-const handleDeleteClick = () => {
-  if (gameState.guess.length > 0) {
-    const tile = document.querySelector(
-      `#guess-${gameState.guessCount}-tile-${gameState.guess.length}`
-    );
-    tile.innerText = "";
-    tile.classList.remove("active");
-    gameState.guess = gameState.guess.slice(0, -1);
-  }
-};
-
-settingsToggle.addEventListener("click", () => {
-  overlay.classList.remove("hide-settings");
-  menuHeading.textContent = "Settings";
-  renderSettings();
-  overlay.classList.add("show-settings");
-});
-
-closeSettings.addEventListener("click", () => {
-  overlay.classList.remove("show-settings");
-  overlay.classList.add("hide-settings");
-  setTimeout(() => {
-    menuContent.innerHTML = "";
-  }, 300);
-});
-
-helpButton.addEventListener("click", createModal);
-scoreButton.addEventListener("click", resetGame);
-
-document.addEventListener("keydown", (e) => {
+// Handles keyboard key presses
+const handleKeyboardPress = (e) => {
   if (validKeys.some((key) => key === e.key)) {
     if (e.key === "Enter") {
       handleEnterClick();
@@ -497,7 +486,73 @@ document.addEventListener("keydown", (e) => {
       }
     }
   }
-});
+};
+
+// Attempts to submit
+const handleEnterClick = () => {
+  const valid = verifyGuess();
+  if (valid) {
+    const hints = generateHints(gameState.guess);
+    flipTiles(hints);
+    updateKeyboard(hints);
+    gameState.guess = "";
+    gameState.guessCount++;
+    if (gameState.guessCount > 6 && !gameState.gameover) {
+      setTimeout(() => {
+        handleGameOver();
+      }, 500);
+    }
+  }
+};
+
+// Removes last letter from current word
+const handleDeleteClick = () => {
+  if (gameState.guess.length > 0) {
+    const tile = document.querySelector(
+      `#guess-${gameState.guessCount}-tile-${gameState.guess.length}`
+    );
+    tile.innerText = "";
+    tile.classList.remove("active");
+    gameState.guess = gameState.guess.slice(0, -1);
+  }
+};
+
+// Shows overlay and renders inner html
+const showOverlay = (header, innerRender) => {
+  overlay.classList.remove("hide-settings");
+  menuHeading.textContent = header;
+  innerRender();
+  overlay.classList.add("show-settings");
+};
+
+// Removes overlay from view
+const closeOverlay = () => {
+  overlay.classList.remove("show-settings");
+  overlay.classList.add("hide-settings");
+  setTimeout(() => {
+    menuContent.innerHTML = "";
+  }, 300);
+};
+
+closeSettings.addEventListener("click", closeOverlay);
+scoreButton.addEventListener("click", resetGame);
+document.addEventListener("keydown", handleKeyboardPress);
+
+helpButton.addEventListener(
+  "click",
+  () => {
+    showOverlay("How To Play", renderHowTo);
+  },
+  false
+);
+
+settingsToggle.addEventListener(
+  "click",
+  () => {
+    showOverlay("Settings", renderSettings);
+  },
+  false
+);
 
 gameboardInit();
 keyboardInit();
