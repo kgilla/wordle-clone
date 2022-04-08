@@ -9,6 +9,7 @@
   --green: #388e3c;
   --yellow: #c9b458;
   --tile-size: 3.5rem;
+  --help-tile: 2.5rem;
   --keyboard-height: 200px;
   --bg-color: #fff;
   --main-color: #111;
@@ -259,6 +260,7 @@ button {
   right: 0;
   display: flex;
   justify-content: center;
+  color: var(--tile);
 }
 
 .menu-item-button {
@@ -480,4 +482,18 @@ button {
   60% {
     transform: translate(4px, 0);
   }
+}
+
+.help-section {
+  border-bottom: 1px solid var(--grey);
+  padding: 1rem 0;
+}
+
+.help-paragraph {
+  font-size: 0.9rem;
+}
+
+.help-tile {
+  height: var(--help-tile);
+  width: var(--help-tile);
 }

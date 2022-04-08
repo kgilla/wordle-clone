@@ -3,10 +3,13 @@ import allowedGuesses from "./data/allowedGuesses.js";
 import {
   keyboardButtons,
   validKeys,
+  helpExamples,
+  helpParagraph,
   hintKey,
   warnings,
   winMessages,
   freshGameState,
+  settingsItems,
 } from "./modules/const.js";
 
 const closeSettings = document.querySelector("#close-settings");
@@ -22,24 +25,6 @@ const settingsToggle = document.querySelector("#settings-toggle");
 const scoreButton = document.querySelector("#score-button");
 
 const wordCount = words.length;
-
-const toggleTheme = () => {
-  documentBody.classList.toggle("dark-theme");
-};
-
-export const settingsItems = [
-  {
-    state: "hardmode",
-    header: "Hard Mode",
-    subtext: "Any revealed hints must be used in subsequent guesses",
-  },
-  {
-    state: "darkmode",
-    header: "Dark Theme",
-    subtext: "",
-    function: toggleTheme,
-  },
-];
 
 /* Things to do
   1) Add how to page
@@ -441,7 +426,41 @@ const renderSettings = () => {
 };
 
 const renderHowTo = () => {
-  console.log("jajaja");
+  const container = createElement("div", { class: "help-container" });
+  const firstParaContainer = createElement("div", {
+    class: "help-section",
+  });
+  const firstPara = createElement("p", {
+    class: "help-paragraph",
+    innerText: helpParagraph,
+  });
+  const secondParaContainer = createElement("div", {
+    class: "help-section",
+  });
+
+  helpExamples.forEach(({ word, text }) => {
+    const row = createElement("div", { class: "game-row" });
+    word.forEach((tile) => {
+      const helpTile = createElement("div", {
+        class: "game-tile",
+        innerText: tile.letter,
+      });
+      helpTile.classList.add("help-tile");
+      if (tile.class) helpTile.classList.add(tile.class);
+      row.appendChild(helpTile);
+    });
+    const para = createElement("p", {
+      class: "help-paragraph",
+      innerText: text,
+    });
+    secondParaContainer.appendChild(row);
+    secondParaContainer.appendChild(para);
+  });
+
+  firstParaContainer.appendChild(firstPara);
+  container.appendChild(firstParaContainer);
+  container.appendChild(secondParaContainer);
+  menuContent.appendChild(container);
 };
 
 // Element creation factory

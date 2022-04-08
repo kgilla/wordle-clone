@@ -10,6 +10,20 @@ export const validKeys = [
   ...keyboardButtons[2],
 ];
 
+export const settingsItems = [
+  {
+    state: "hardmode",
+    header: "Hard Mode",
+    subtext: "Any revealed hints must be used in subsequent guesses",
+  },
+  {
+    state: "darkmode",
+    header: "Dark Theme",
+    subtext: "",
+    function: () => document.body.classList.toggle("dark-theme"),
+  },
+];
+
 export const hintKey = {
   active: "active",
   match: "match",
@@ -37,3 +51,39 @@ export const freshGameState = {
   guessCount: 1,
   gameover: false,
 };
+
+export const helpParagraph =
+  "Guess the SMURDLE in six tries. \n \n Each guess must be a valid five-letter word. Hit the enter button to submit. \n \n After each guess, the color of the tiles will change to show how close your guess was to the word.";
+
+export const helpExamples = [
+  {
+    word: [
+      { letter: "w", class: "match" },
+      { letter: "a" },
+      { letter: "t" },
+      { letter: "c" },
+      { letter: "h" },
+    ],
+    text: "The letter W is in the word and in the correct spot.",
+  },
+  {
+    word: [
+      { letter: "p" },
+      { letter: "i", class: "partial" },
+      { letter: "l" },
+      { letter: "l" },
+      { letter: "s" },
+    ],
+    text: "The letter I is in the word but in the wrong spot.",
+  },
+  {
+    word: [
+      { letter: "v" },
+      { letter: "a" },
+      { letter: "g" },
+      { letter: "u", class: "no-match" },
+      { letter: "e" },
+    ],
+    text: "The letter U is not in the word in any spot.",
+  },
+];
