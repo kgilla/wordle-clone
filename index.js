@@ -28,7 +28,7 @@ const scoreButton = document.querySelector("#score-button");
 const wordCount = words.length;
 
 /* Things to do
-  2) Add stats graph
+  2) Fix up stats page
 */
 
 // Game State
