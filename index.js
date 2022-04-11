@@ -71,7 +71,7 @@ const loadState = () => {
     const { settings, game } = state;
     console.log(state);
     if (settings.darkmode) document.body.classList.toggle("dark-theme");
-    if (game.guessHistory.length && !game.gameover) {
+    if (game.guessHistory?.length && !game.gameover) {
       game.guessHistory.forEach((guess, i) => {
         const hints = generateHints(guess, i + 1);
         hints.forEach((hint) => renderHint(hint));
@@ -230,7 +230,8 @@ const flipTiles = (hints) => {
 const resetGame = () => {
   gameContainer.innerHTML = "";
   keyboardContainer.innerHTML = "";
-  state.game = { ...freshGameState };
+  state.game = { ...freshGameState, guessHistory: [], hintHistory: [] };
+  console.log(state.game);
   gameboardInit();
   keyboardInit();
   generateAnswer();

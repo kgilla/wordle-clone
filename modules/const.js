@@ -57,8 +57,6 @@ export const freshGameState = {
   guess: "",
   guessCount: 1,
   gameover: false,
-  guessHistory: [],
-  hintHistory: [],
 };
 
 export const helpParagraph =

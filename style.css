@@ -10,7 +10,7 @@
   --yellow: #c9b458;
   --tile-size: 3.5rem;
   --help-tile: 2.5rem;
-  --keyboard-height: 200px;
+  --keyboard-height: 220px;
   --bg-color: #fff;
   --main-color: #111;
   --active: #000;
@@ -113,6 +113,7 @@ button {
   height: var(--keyboard-height);
   display: flex;
   flex-direction: column;
+  padding: 0.25rem;
 }
 
 .keyboard-row {
@@ -120,14 +121,17 @@ button {
   max-width: 500px;
   display: flex;
   justify-content: center;
-  flex-grow: 1;
   margin: 0 auto 8px;
+}
+
+.keyboard-row:nth-child(2) {
+  width: 96%;
 }
 
 .keyboard-button {
   height: 58px;
-  width: 45px;
   display: flex;
+  flex: 1;
   justify-content: center;
   align-items: center;
   margin: 0 0.2rem;
@@ -146,7 +150,7 @@ button {
 }
 
 .larger-button {
-  flex-grow: 1;
+  flex: 1.5 !important;
 }
 
 .keyboard-button:hover {
@@ -159,7 +163,7 @@ button {
   top: 1.25rem;
   left: 50%;
   transform: translate(-50%);
-  padding: 1rem;
+  padding: 0.5rem;
   color: #fff;
   background-color: #282828;
   border-radius: 8px;
@@ -320,6 +324,7 @@ button {
 
 .modal-heading {
   margin: 0;
+  font-size: 1.2rem;
 }
 
 .modal-text {
@@ -339,7 +344,6 @@ button {
 
 .modal-button-container {
   display: flex;
-  /* margin-top: auto; */
 }
 
 .modal-button {
