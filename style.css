@@ -2,6 +2,7 @@
 
 * {
   font-family: "Roboto", sans-serif;
+  box-sizing: border-box;
 }
 
 :root {
@@ -28,7 +29,7 @@
 
 @media screen and (max-width: 600px) {
   :root {
-    --tile-size: 3rem;
+    --tile-size: 3.25rem;
   }
 }
 
@@ -45,7 +46,7 @@ body {
 }
 
 #main {
-  min-height: 90vh;
+  height: calc(100vh - 2rem);
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -96,7 +97,6 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 1rem;
 }
 
 .game-row {
@@ -126,7 +126,7 @@ button {
 }
 
 .keyboard-row {
-  width: 98%;
+  width: 100%;
   max-width: 500px;
   display: flex;
   justify-content: center;
