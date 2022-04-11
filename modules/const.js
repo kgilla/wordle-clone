@@ -34,6 +34,7 @@ export const hintKey = {
 export const warnings = {
   tooShort: "Not enough letters",
   notWord: "Not in word list",
+  mustContain: (letter) => `Guess must contain ${letter.toUpperCase()}`,
 };
 
 export const winMessages = {
@@ -50,7 +51,8 @@ export const freshGameState = {
   guess: "",
   guessCount: 1,
   gameover: false,
-  prevGuesses: [],
+  guessHistory: [],
+  hintHistory: [],
 };
 
 export const helpParagraph =

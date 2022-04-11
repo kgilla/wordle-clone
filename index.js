@@ -38,7 +38,8 @@ let state = {
     guess: "",
     guessCount: 1,
     gameover: false,
-    prevGuesses: [],
+    guessHistory: [],
+    hintHistory: [],
   },
   stats: {
     winCount: 0,
@@ -68,9 +69,10 @@ const loadState = () => {
   if (stateSave) {
     state = stateSave;
     const { settings, game } = state;
+    console.log(state);
     if (settings.darkmode) document.body.classList.toggle("dark-theme");
-    if (game.prevGuesses && !game.gameover) {
-      game.prevGuesses.forEach((guess, i) => {
+    if (game.guessHistory.length && !game.gameover) {
+      game.guessHistory.forEach((guess, i) => {
         const hints = generateHints(guess, i + 1);
         hints.forEach((hint) => renderHint(hint));
         updateKeyboard(hints, false);
@@ -108,18 +110,32 @@ const handleGameOver = (win) => {
 };
 
 // Validates guess based on current settings
-const verifyGuess = () => {
-  if (state.game.guess.length < 5) {
+const verifyGuess = (guess) => {
+  if (guess.length < 5) {
     createMessage(warnings.tooShort, true);
     return false;
-  } else if (
-    ![...allowedGuesses, ...words].some((word) => word === state.game.guess)
-  ) {
+  } else if (![...allowedGuesses, ...words].some((word) => word === guess)) {
     createMessage(warnings.notWord, true);
     return false;
+  } else if (state.settings.hardmode && state.game.hintHistory.length) {
+    return validateHardMode(guess);
   } else {
     return true;
   }
+};
+
+const validateHardMode = (guess) => {
+  let valid = true;
+  let letter = "";
+  state.game.hintHistory.forEach((hint) => {
+    const index = guess.indexOf(hint);
+    if (index === -1) {
+      valid = false;
+      letter = hint;
+    }
+  });
+  if (!valid) createMessage(warnings.mustContain(letter), true);
+  return valid;
 };
 
 // Checks if every letter is correct
@@ -137,6 +153,7 @@ const findExactMatches = (guessCopy, answerCopy, hints, row) => {
     if (row) tile.innerText = letter;
     const keyboardKey = document.querySelector(`#${letter}`);
     if (letter === state.game.answer[i]) {
+      state.game.hintHistory.push(letter);
       answerCopy[i] = "";
       guessCopy[i] = "";
       hints.push({ index: i, tile, keyboardKey, class: hintKey.match });
@@ -156,6 +173,7 @@ const findPartialMatches = (guessCopy, answerCopy, hints, row) => {
     const keyboardKey = document.querySelector(`#${letter}`);
     const index = answerCopy.findIndex((l) => l === letter);
     if (index !== -1) {
+      state.game.hintHistory.push(letter);
       answerCopy[index] = "";
       guessCopy[i] = "";
       hints.push({ index: i, tile, keyboardKey, class: hintKey.partial });
@@ -163,7 +181,7 @@ const findPartialMatches = (guessCopy, answerCopy, hints, row) => {
       hints.push({ index: i, tile, keyboardKey, class: hintKey.noMatch });
     }
   });
-  return [guessCopy, answerCopy, hints];
+  return hints;
 };
 
 // Cycles through guess to reveal hints on gameboard and keyboard
@@ -181,12 +199,7 @@ const generateHints = (currentGuess, row) => {
 
   checkWin(guessCopy);
 
-  [guessCopy, answerCopy, hints] = findPartialMatches(
-    guessCopy,
-    answerCopy,
-    hints,
-    row
-  );
+  hints = findPartialMatches(guessCopy, answerCopy, hints, row);
 
   return hints.sort((hintA, hintB) => (hintA.index > hintB.index ? 1 : -1));
 };
@@ -221,6 +234,7 @@ const resetGame = () => {
   gameboardInit();
   keyboardInit();
   generateAnswer();
+  saveState();
 };
 
 // Rendering Functions //
@@ -551,12 +565,12 @@ const handleKeyboardPress = (e) => {
 
 // Attempts to submit
 const handleEnterClick = () => {
-  const valid = verifyGuess();
+  const valid = verifyGuess(state.game.guess);
   if (valid) {
     const hints = generateHints(state.game.guess);
     flipTiles(hints);
     updateKeyboard(hints);
-    state.game.prevGuesses.push(state.game.guess);
+    state.game.guessHistory.push(state.game.guess);
     state.game.guess = "";
     state.game.guessCount++;
     saveState();
