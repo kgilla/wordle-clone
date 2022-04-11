@@ -124,11 +124,12 @@ button {
 #keyboard-container {
   height: var(--keyboard-height);
   padding: 0.25rem;
+  width: 500px;
+  max-width: 100vw;
+  margin: 0 auto;
 }
 
 .keyboard-row {
-  width: 500px;
-  max-width: 100vw;
   display: flex;
   justify-content: center;
   margin: 0 auto 8px;
