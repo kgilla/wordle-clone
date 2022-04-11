@@ -6,6 +6,7 @@ import {
   helpExamples,
   helpParagraph,
   hintKey,
+  modalTitles,
   warnings,
   winMessages,
   freshGameState,
@@ -28,7 +29,6 @@ const wordCount = words.length;
 
 /* Things to do
   2) Add stats graph
-  4) Add hard mode
 */
 
 // Game State
@@ -105,7 +105,7 @@ const handleGameOver = (win) => {
     win ? winMessages[state.game.guessCount] : "Better Luck Next Time"
   );
   setTimeout(() => {
-    createModal();
+    createModal(true, win);
   }, 1500);
 };
 
@@ -363,7 +363,7 @@ const createStatsElements = () => {
 };
 
 // Creates modal for win/loss info
-const createModal = (isWin) => {
+const createModal = (gameover, isWin = false) => {
   const modalOverlay = createElement("div", { class: "modal-overlay" });
 
   const modal = createElement("div", { class: "main-modal" });
@@ -373,7 +373,11 @@ const createModal = (isWin) => {
 
   const heading = createElement("h2", {
     class: "modal-heading",
-    innerText: "Game Over",
+    innerText: gameover
+      ? isWin
+        ? modalTitles.win
+        : modalTitles.loss
+      : modalTitles.stats,
   });
 
   const modalBody = createElement("p", {
@@ -416,7 +420,7 @@ const createModal = (isWin) => {
   buttonContainer.appendChild(newGameButton);
   buttonContainer.appendChild(githubButton);
   modal.appendChild(heading);
-  modal.appendChild(modalBody);
+  if (gameover) modal.appendChild(modalBody);
   modal.appendChild(modalStats);
   modal.appendChild(buttonContainer);
 };
@@ -612,7 +616,9 @@ const closeOverlay = () => {
 };
 
 closeSettings.addEventListener("click", closeOverlay);
-scoreButton.addEventListener("click", createModal);
+scoreButton.addEventListener("click", () => {
+  createModal(false);
+});
 document.addEventListener("keydown", handleKeyboardPress);
 
 helpButton.addEventListener(

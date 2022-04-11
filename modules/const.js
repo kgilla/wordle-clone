@@ -31,6 +31,12 @@ export const hintKey = {
   partial: "partial",
 };
 
+export const modalTitles = {
+  win: "Winner!",
+  loss: "Game Over",
+  stats: "Statistics",
+};
+
 export const warnings = {
   tooShort: "Not enough letters",
   notWord: "Not in word list",

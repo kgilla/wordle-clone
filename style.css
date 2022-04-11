@@ -297,6 +297,7 @@ button {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   padding: 1rem;
   background-color: var(--bg-color);
   border-radius: 8px;
@@ -322,6 +323,7 @@ button {
 }
 
 .modal-text {
+  margin: 0;
 }
 
 #modal-close-button {
@@ -337,7 +339,7 @@ button {
 
 .modal-button-container {
   display: flex;
-  margin-top: auto;
+  /* margin-top: auto; */
 }
 
 .modal-button {
@@ -378,6 +380,20 @@ button {
   font-weight: 400;
   font-size: 0.9rem;
   color: #78767e;
+}
+
+/* Help Section */
+.help-section {
+  border-bottom: 1px solid lightgrey;
+}
+
+.help-paragraph {
+  font-size: 0.9rem;
+}
+
+.help-tile {
+  height: var(--help-tile);
+  width: var(--help-tile);
 }
 
 /* Utility classes and Animations */
@@ -483,24 +499,4 @@ button {
   60% {
     transform: translate(4px, 0);
   }
-}
-/* 
-.help-container {
-  padding: 0 2rem;
-} */
-
-.help-section {
-  border-bottom: 1px solid lightgrey;
-}
-
-.help-heading {
-}
-
-.help-paragraph {
-  font-size: 0.9rem;
-}
-
-.help-tile {
-  height: var(--help-tile);
-  width: var(--help-tile);
 }
