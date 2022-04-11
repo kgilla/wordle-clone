@@ -26,6 +26,12 @@
   --overlay-bg: rgba(0, 0, 0, 0.4);
 }
 
+@media screen and (max-width: 600px) {
+  :root {
+    --tile-size: 3rem;
+  }
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -120,7 +126,7 @@ button {
 }
 
 .keyboard-row {
-  width: 100%;
+  width: 98%;
   max-width: 500px;
   display: flex;
   justify-content: center;
@@ -128,7 +134,7 @@ button {
 }
 
 .keyboard-row:nth-child(2) {
-  width: 96%;
+  width: 94%;
 }
 
 .keyboard-button {
@@ -143,7 +149,7 @@ button {
   background: lightgray;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--main-color);
+  color: #111;
   text-transform: uppercase;
   transition: all 0.2s;
 }
