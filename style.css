@@ -34,16 +34,15 @@
   :root {
     --tile-size: 3.5rem;
   }
-  body {
-    max-height: 96vh;
-  }
 }
 
 body {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  max-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
   overflow: hidden;
   background-color: var(--bg-color);
   color: var(--main-color);
@@ -122,8 +121,8 @@ button {
 #keyboard-container {
   height: var(--keyboard-height);
   padding: 0.25rem;
-  width: 500px;
-  max-width: 96vw;
+  width: 100%;
+  max-width: 500px;
   margin: 0 auto;
 }
 
