@@ -30,6 +30,12 @@
   --grey: #515a5a;
 }
 
+@media screen and (max-width: 330px) {
+  :root {
+    --tile-size: 3.5rem;
+  }
+}
+
 @media screen and (max-width: 400px) {
   .title {
     font-size: 1.2rem;
@@ -39,16 +45,16 @@
 body {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  max-height: 100vh;
-  width: 100vw;
-  max-width: 100vw;
   overflow: hidden;
   background-color: var(--bg-color);
   color: var(--main-color);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100vh;
+  height: -webkit-fill-available;
+  width: 100vw;
+  width: -webkit-fill-available;
 }
 
 button {
