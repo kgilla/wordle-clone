@@ -2,6 +2,7 @@
 
 html {
   height: 100%;
+  overflow: hidden;
 }
 
 * {
@@ -38,6 +39,10 @@ html {
   :root {
     --tile-size: 3.5rem;
   }
+
+  #keyboard-container {
+    max-width: 450px;
+  }
 }
 
 @media screen and (max-width: 400px) {
@@ -58,6 +63,7 @@ body {
 
 button {
   cursor: pointer;
+  user-select: none;
 }
 
 #main-container {
@@ -149,6 +155,7 @@ button {
   display: flex;
   justify-content: center;
   margin: 0 auto 8px;
+  touch-action: manipulation;
 }
 
 .keyboard-row:nth-child(2) {
