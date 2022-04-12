@@ -9,9 +9,9 @@
   --grey: #78767e;
   --green: #388e3c;
   --yellow: #c9b458;
-  --tile-size: 4rem;
+  --tile-size: 3.85rem;
   --help-tile: 2.5rem;
-  --keyboard-height: 220px;
+  --keyboard-height: 200px;
   --bg-color: #fff;
   --main-color: #111;
   --active: #000;
@@ -31,17 +31,17 @@
 }
 
 @media screen and (max-width: 400px) {
-  :root {
-    --tile-size: 3.5rem;
+  .title {
+    font-size: 1.2rem;
   }
 }
 
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  height: 100vh;
   max-height: 100vh;
-  width: 100%;
+  width: 100vw;
   max-width: 100vw;
   overflow: hidden;
   background-color: var(--bg-color);
@@ -96,7 +96,7 @@ button {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 1rem;
+  margin: 0.25rem;
 }
 
 .game-row {
@@ -120,6 +120,8 @@ button {
 
 #keyboard-container {
   height: var(--keyboard-height);
+  display: flex;
+  flex-direction: column;
   padding: 0.25rem;
   width: 100%;
   max-width: 500px;
@@ -127,6 +129,8 @@ button {
 }
 
 .keyboard-row {
+  width: 100%;
+  flex: 1;
   display: flex;
   justify-content: center;
   margin: 0 auto 8px;
@@ -137,14 +141,13 @@ button {
 }
 
 .keyboard-button {
-  height: 58px;
   display: flex;
   flex: 1;
   justify-content: center;
   align-items: center;
   margin: 0 0.2rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--keyboard-color);
   font-size: 0.8rem;
   font-weight: 600;
