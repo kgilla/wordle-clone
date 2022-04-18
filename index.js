@@ -27,10 +27,6 @@ const scoreButton = document.querySelector("#score-button");
 
 const wordCount = words.length;
 
-/* Things to do
-  2) Fix up stats page
-*/
-
 // Game State
 let state = {
   game: {
@@ -69,7 +65,6 @@ const loadState = () => {
   if (stateSave) {
     state = stateSave;
     const { settings, game } = state;
-    console.log(state);
     if (settings.darkmode) document.body.classList.toggle("dark-theme");
     if (game.guessHistory?.length && !game.gameover) {
       game.guessHistory.forEach((guess, i) => {
@@ -231,7 +226,6 @@ const resetGame = () => {
   gameContainer.innerHTML = "";
   keyboardContainer.innerHTML = "";
   state.game = { ...freshGameState, guessHistory: [], hintHistory: [] };
-  console.log(state.game);
   gameboardInit();
   keyboardInit();
   generateAnswer();
@@ -412,7 +406,10 @@ const createModal = (gameover, isWin = false) => {
   });
 
   modalClose.addEventListener("click", () => {
-    modalOverlay.remove();
+    modal.classList.add("slide-down");
+    setTimeout(() => {
+      modalOverlay.remove();
+    }, 190);
   });
 
   documentBody.appendChild(modalOverlay);
@@ -424,6 +421,7 @@ const createModal = (gameover, isWin = false) => {
   if (gameover) modal.appendChild(modalBody);
   modal.appendChild(modalStats);
   modal.appendChild(buttonContainer);
+  modal.classList.add("slide-up");
 };
 
 // Creates settings menu
@@ -537,6 +535,7 @@ const createElement = (type, attr) => {
 
 // Handles the click event for all letters
 const handleKeyboardClick = (e) => {
+  if (state.game.gameover) return;
   const letter = e.target.getAttribute("key");
   if (state.game.guess.length < 5) {
     const tile = document.querySelector(
@@ -550,6 +549,7 @@ const handleKeyboardClick = (e) => {
 
 // Handles keyboard key presses
 const handleKeyboardPress = (e) => {
+  if (state.game.gameover) return;
   if (validKeys.some((key) => key === e.key)) {
     if (e.key === "Enter") {
       handleEnterClick();
@@ -570,6 +570,7 @@ const handleKeyboardPress = (e) => {
 
 // Attempts to submit
 const handleEnterClick = () => {
+  if (state.game.gameover) return;
   const valid = verifyGuess(state.game.guess);
   if (valid) {
     const hints = generateHints(state.game.guess);

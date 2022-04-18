@@ -292,7 +292,7 @@ button {
   color: #a2a2a2;
 }
 
-#menu-container > footer {
+footer {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -300,6 +300,14 @@ button {
   display: flex;
   justify-content: center;
   color: var(--tile);
+}
+
+footer > a > button {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--grey);
+  padding: 0.5rem;
 }
 
 .menu-item-button {
@@ -492,6 +500,14 @@ button {
   animation: flipOut 250ms ease-in;
 }
 
+.slide-up {
+  animation: slideUp 150ms ease-in;
+}
+
+.slide-down {
+  animation: slideDown 200ms ease-in;
+}
+
 @keyframes flipIn {
   0% {
     transform: rotateX(0deg);
@@ -536,5 +552,27 @@ button {
   40%,
   60% {
     transform: translate(4px, 0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(1.5rem);
+    opacity: 0%;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 100%;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+    opacity: 100%;
+  }
+  to {
+    transform: translateY(3rem);
+    opacity: 0%;
   }
 }
